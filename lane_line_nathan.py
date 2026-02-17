@@ -5,9 +5,8 @@ from collections import deque, namedtuple
 
 LaneState = namedtuple("LaneState", ["coeffs", "type", "color"])
 
-
 class LaneTracker:
-    """Tracks a single lane (left or right) — owns all per-lane buffers and state."""
+    """Tracks a single lane (left or right) owns all per-lane buffers and state."""
 
     def __init__(self, buffer_size, alpha, line_threshold):
         self.alpha = alpha
@@ -31,11 +30,11 @@ class LaneTracker:
         return np.array([0.0, lin[0], lin[1]])
 
     def _classify_type(self, segments):
-        """Classify using coverage ratio. Broken lines follow a 1:3 standard
-        (~25% coverage), solid lines are near 100%. Threshold at 50%."""
+        """ Classify using coverage ratio. Broken lines follow a 1:3 standard , solid lines are near 100%. Threshold at 50%. """
         if len(segments) < 2:
             self.type_history.append(0.0)
         else:
+            # this is broken not able to indentify broken lines in the middle of the freeway. 
             segs = np.array(segments)
             y_min = segs[:, [1, 3]].min()
             y_max = segs[:, [1, 3]].max()
@@ -46,8 +45,7 @@ class LaneTracker:
         return "SOLID" if np.mean(self.type_history) >= self.line_threshold else "DOTTED"
 
     def _classify_color(self, segments, mask_y, width, height):
-        """Detect lane color by sampling a region around each segment midpoint,
-        smoothed with a temporal vote across recent frames."""
+        """Detect lane color by sampling a region around each segment midpoint, smoothed with a temporal vote across recent frames."""
         radius = 5
         if len(segments) > 0:
             yellow_px, total_px = 0, 0
@@ -253,7 +251,6 @@ if __name__ == "__main__":
         start = time.time()
         ret, frame = cap.read()
         if not ret: break
-
         res, debug_imgs = detector.process_frame(frame)
         fps = 1 / (time.time() - start)
         cv2.putText(res, f"GPU FPS: {int(fps)}", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
