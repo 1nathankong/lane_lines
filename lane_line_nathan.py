@@ -1,5 +1,4 @@
 import cv2
-from cv2 import cuda  # GPU ACCESS
 import numpy as np
 import time
 from collections import deque, namedtuple
