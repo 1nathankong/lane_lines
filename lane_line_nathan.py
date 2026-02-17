@@ -246,9 +246,9 @@ if __name__ == "__main__":
     DEBUG = False
 
     detector = LaneDetector(debug=DEBUG)
-    cap = cv2.VideoCapture(r"c:\Users\nkgMe\Downloads\project_video.mp4")
-    #cap = cv2.VideoCapture(r"c:\Users\nkgMe\Downloads\challenge_video.mp4")
-    #cap = cv2.VideoCapture(r"c:\Users\nkgMe\Downloads\harder_challenge_video.mp4")
+    cap = cv2.VideoCapture(r"c:\Users\nkgMe\documents\lane_lines\project_video.mp4")
+    #cap = cv2.VideoCapture(r"c:\Users\nkgMe\documents\lane_lines\challenge_video.mp4")
+    #cap = cv2.VideoCapture(r"c:\Users\nkgMe\documents\lane_lines\harder_challenge_video.mp4")
 
     while cap.isOpened():
         start = time.time()
