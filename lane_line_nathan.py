@@ -109,8 +109,8 @@ class LaneDetector:
         if self.gpu_roi_mask is None:
             self.roi_vertices = np.array([
                 [int(width * 0.1), height],
-                [int(width * 0.45), int(height * 0.6)],
-                [int(width * 0.55), int(height * 0.6)],
+                [int(width * 0.40), int(height * 0.667)],
+                [int(width * 0.58), int(height * 0.667)],
                 [int(width * 0.9), height]
             ], dtype=np.int32)
 
@@ -152,7 +152,7 @@ class LaneDetector:
             if -1.5 < m < -0.5 and mx < mid_x:
                 left_pts.extend([(x1, y1), (x2, y2)])
                 left_segs.append([x1, y1, x2, y2])
-            elif 0.5 < m < 1.5 and mx > mid_x:
+            elif 0.5 < m < 1.50 and mx > mid_x:
                 right_pts.extend([(x1, y1), (x2, y2)])
                 right_segs.append([x1, y1, x2, y2])
 
@@ -188,11 +188,14 @@ class LaneDetector:
     def process_frame(self, frame):
         height, width = frame.shape[:2]
 
-        # Color filtering (CPU)
+        # Color filtering (CPU) — bottom third only, sky excluded
+        sky_cutoff = int(height * 2 / 3)
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         mask_y = cv2.inRange(hsv, self.lower_yellow, self.upper_yellow)
         mask_w = cv2.inRange(hsv, self.lower_white, self.upper_white)
         color_mask = cv2.bitwise_or(mask_y, mask_w)
+        color_mask[:sky_cutoff, :] = 0
+        mask_y[:sky_cutoff, :] = 0
 
         # Edge detection (GPU)
         gpu_roi_edges = self._detect_edges(frame, color_mask)
@@ -205,10 +208,10 @@ class LaneDetector:
             roi_overlay = roi_visual.copy()
             cv2.fillPoly(roi_overlay, [self.roi_vertices], (0, 255, 255))
             cv2.addWeighted(roi_overlay, 0.3, roi_visual, 0.7, 0, roi_visual)
-            #debug_imgs["DEBUG 1 - ROI Overlay"] = roi_visual
+            debug_imgs["DEBUG 1 - ROI Overlay"] = roi_visual
             #debug_imgs["DEBUG 2 - White+Yellow Mask"] = color_mask
-            #debug_imgs["DEBUG 3 - Masked Color"] = cv2.bitwise_and(frame, frame, mask=color_mask)
-            #debug_imgs["DEBUG 4 - Canny Edges (ROI only)"] = gpu_roi_edges.download()
+            debug_imgs["DEBUG 3 - Masked Color"] = cv2.bitwise_and(frame, frame, mask=color_mask)
+            debug_imgs["DEBUG 4 - Canny Edges (ROI only)"] = gpu_roi_edges.download()
 
         # Hough lines + sort
         edges = gpu_roi_edges.download()
@@ -226,26 +229,24 @@ class LaneDetector:
                 lane_results[side] = state
 
         # Draw
-        plot_y = np.linspace(int(height * 0.6), height, 50, dtype=int)
+        plot_y = np.linspace(int(height * 0.667), height, 50, dtype=int)
         overlay = self._draw_overlay(frame, lane_results, plot_y, width)
 
         return overlay, debug_imgs
 
 
 ## down here to test my code
-
-
 if __name__ == "__main__":
     if cv2.cuda.getCudaEnabledDeviceCount() == 0:
         print("CUDA not detected."); exit()
 
     # ── Toggle debug mode here ──
-    DEBUG = False
+    DEBUG = True
 
     detector = LaneDetector(debug=DEBUG)
-    cap = cv2.VideoCapture(r"c:\Users\nkgMe\documents\lane_lines\project_video.mp4")
+    #cap = cv2.VideoCapture(r"c:\Users\nkgMe\documents\lane_lines\project_video.mp4")
     #cap = cv2.VideoCapture(r"c:\Users\nkgMe\documents\lane_lines\challenge_video.mp4")
-    #cap = cv2.VideoCapture(r"c:\Users\nkgMe\documents\lane_lines\harder_challenge_video.mp4")
+    cap = cv2.VideoCapture(r"c:\Users\nkgMe\documents\lane_lines\harder_challenge_video.mp4")
 
     while cap.isOpened():
         start = time.time()
