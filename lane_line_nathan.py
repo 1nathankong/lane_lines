@@ -1,3 +1,4 @@
+
 import cv2
 import numpy as np
 import time
@@ -208,10 +209,10 @@ class LaneDetector:
             roi_overlay = roi_visual.copy()
             cv2.fillPoly(roi_overlay, [self.roi_vertices], (0, 255, 255))
             cv2.addWeighted(roi_overlay, 0.3, roi_visual, 0.7, 0, roi_visual)
-            debug_imgs["DEBUG 1 - ROI Overlay"] = roi_visual
-            #debug_imgs["DEBUG 2 - White+Yellow Mask"] = color_mask
-            debug_imgs["DEBUG 3 - Masked Color"] = cv2.bitwise_and(frame, frame, mask=color_mask)
-            debug_imgs["DEBUG 4 - Canny Edges (ROI only)"] = gpu_roi_edges.download()
+            #debug_imgs["DEBUG 1 - ROI Overlay"] = roi_visual
+            debug_imgs["DEBUG 2 - White+Yellow Mask"] = color_mask
+            #debug_imgs["DEBUG 3 - Masked Color"] = cv2.bitwise_and(frame, frame, mask=color_mask)
+            #debug_imgs["DEBUG 4 - Canny Edges (ROI only)"] = gpu_roi_edges.download()
 
         # Hough lines + sort
         edges = gpu_roi_edges.download()
@@ -246,7 +247,8 @@ if __name__ == "__main__":
     detector = LaneDetector(debug=DEBUG)
     #cap = cv2.VideoCapture(r"c:\Users\nkgMe\documents\lane_lines\project_video.mp4")
     #cap = cv2.VideoCapture(r"c:\Users\nkgMe\documents\lane_lines\challenge_video.mp4")
-    cap = cv2.VideoCapture(r"c:\Users\nkgMe\documents\lane_lines\harder_challenge_video.mp4")
+    #cap = cv2.VideoCapture(r"c:\Users\nkgMe\documents\lane_lines\harder_challenge_video.mp4")
+    cap = cv2.VideoCapture(r"c:\Users\nkgMe\Downloads\lane_lines_snow_720p.mp4")
 
     while cap.isOpened():
         start = time.time()
